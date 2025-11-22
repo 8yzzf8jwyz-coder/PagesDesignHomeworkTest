@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusSeed - 学生端</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(to bottom, #1a237e, #283593, #303f9f);
+            color: #333;
+            line-height: 1.6;
+            max-width: 414px;
+            margin: 0 auto;
+            position: relative;
+            min-height: 100vh;
+            overflow-x: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .container {
+            padding: 15px;
+            padding-bottom: 100px;
+        }
+        
+        /* 顶部栏 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            color: white;
+        }
+        
+        .my-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .star-balance {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* 书桌场景 */
+        .desk-scene {
+            position: relative;
+            height: 70vh;
+            margin-top: 20px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="%235d4037" width="100" height="100"/></svg>');
+            border-radius: 16px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .window {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(to bottom, #0d47a1, #1e88e5, #64b5f6);
+            border-radius: 16px 16px 0 0;
+            overflow: hidden;
+        }
+        
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        .wish-bottle {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 120px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 40px 40px 10px 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 10px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .wish-bottle:hover {
+            transform: translateX(-50%) scale(1.05);
+        }
+        
+        .bottle-neck {
+            width: 30px;
+            height: 30px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 10px 10px 0 0;
+            position: absolute;
+            top: -30px;
+        }
+        
+        .wish-stars {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            padding: 5px;
+        }
+        
+        .mini-star {
+            width: 8px;
+            height: 8px;
+            background: gold;
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+        
+        .pen {
+            position: absolute;
+            bottom: 130px;
+            right: 30px;
+            width: 40px;
+            height: 120px;
+            background: #8d6e63;
+            border-radius: 5px;
+            transform: rotate(15deg);
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .pen-tip {
+            position: absolute;
+            bottom: -10px;
+            left: 10px;
+            width: 20px;
+            height: 30px;
+            background: #5d4037;
+            border-radius: 0 0 10px 10px;
+        }
+        
+        /* 专注按钮 */
+        .focus-btn {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ffeb3b, #fbc02d);
+            color: #5d4037;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* 模态窗口 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        /* 愿望清单 */
+        .wish-list {
+            list-style: none;
+        }
+        
+        .wish-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .wish-item:last-child {
+            border-bottom: none;
+        }
+        
+        .wish-info {
+            flex: 1;
+        }
+        
+        .wish-status {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            margin-left: 10px;
+        }
+        
+        .status-pending {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .status-available {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .wish-cost {
+            color: #ff9800;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        
+        .wish-action {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        /* 表单 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .form-textarea {
+            height: 100px;
+            resize: none;
+        }
+        
+        .submit-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        /* 我的页面 */
+        .profile-content {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .menu-list {
+            list-style: none;
+        }
+        
+        .menu-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        /* 星图档案馆 */
+        .archive-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .search-box {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+        
+        .filter-btn {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .archive-list {
+            list-style: none;
+        }
+        
+        .archive-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .archive-item:last-child {
+            border-bottom: none;
+        }
+        
+        .archive-date {
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部栏 -->
+        <div class="top-bar">
+            <div class="my-profile" id="my-profile-btn">
+                <div class="avatar">👤</div>
+                <span>小明</span>
+            </div>
+            <div class="star-balance">
+                <span>★</span>
+                <span id="star-count">42</span>
+            </div>
+        </div>
+        
+        <!-- 书桌场景 -->
+        <div class="desk-scene">
+            <div class="window">
+                <div class="stars" id="stars-container">
+                    <!-- 星星将通过JS动态生成 -->
+                </div>
+            </div>
+            
+            <!-- 愿望瓶 -->
+            <div class="wish-bottle" id="wish-bottle">
+                <div class="bottle-neck"></div>
+                <div class="wish-stars">
+                    <div class="mini-star"></div>
+                    <div class="mini-star"></div>
+                    <div class="mini-star"></div>
+                    <div class="mini-star"></div>
+                    <div class="mini-star"></div>
+                </div>
+            </div>
+            
+            <!-- 笔 -->
+            <div class="pen" id="pen">
+                <div class="pen-tip"></div>
+            </div>
+            
+            <!-- 专注按钮 -->
+            <button class="focus-btn">
+                <span>开始专注</span>
+                <span>⏱️</span>
+            </button>
+        </div>
+        
+        <!-- 我的页面 -->
+        <div class="profile-content" id="profile-content">
+            <div class="profile-header">
+                <div class="profile-avatar">👤</div>
+                <div>
+                    <h3>小明</h3>
+                    <p>已绑定家长：张爸爸</p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">星图档案馆</div>
+                <div class="archive-header">
+                    <input type="text" class="search-box" placeholder="搜索已实现的心愿...">
+                    <button class="filter-btn">筛选</button>
+                </div>
+                <ul class="archive-list">
+                    <li class="archive-item">
+                        <div class="wish-info">
+                            <div>一本《三体》</div>
+                            <div class="archive-date">2023-10-28</div>
+                        </div>
+                        <div class="wish-cost">★15</div>
+                    </li>
+                    <li class="archive-item">
+                        <div class="wish-info">
+                            <div>周末多30分钟游戏时间</div>
+                            <div class="archive-date">2023-10-25</div>
+                        </div>
+                        <div class="wish-cost">★10</div>
+                    </li>
+                    <li class="archive-item">
+                        <div class="wish-info">
+                            <div>一次家庭烧烤</div>
+                            <div class="archive-date">2023-10-20</div>
+                        </div>
+                        <div class="wish-cost">★40</div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">设置</div>
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <span>账号与绑定</span>
+                        <span>></span>
+                    </li>
+                    <li class="menu-item">
+                        <span>通知设置</span>
+                        <span>></span>
+                    </li>
+                    <li class="menu-item">
+                        <span>帮助与反馈</span>
+                        <span>></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 愿望清单模态窗口 -->
+    <div class="modal" id="wish-list-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">我的愿望清单</div>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <ul class="wish-list">
+                    <li class="wish-item">
+                        <div class="wish-info">周末去动物园</div>
+                        <div>
+                            <span class="wish-cost">★20</span>
+                            <span class="wish-status status-pending">审核中</span>
+                        </div>
+                    </li>
+                    <li class="wish-item">
+                        <div class="wish-info">新出的乐高套装</div>
+                        <div>
+                            <span class="wish-cost">★50</span>
+                            <span class="wish-status status-pending">审核中</span>
+                        </div>
+                    </li>
+                    <li class="wish-item">
+                        <div class="wish-info">周末多30分钟游戏时间</div>
+                        <div>
+                            <span class="wish-cost">★15</span>
+                            <span class="wish-status status-available">可兑换</span>
+                        </div>
+                        <button class="wish-action">摘星许愿</button>
+                    </li>
+                    <li class="wish-item">
+                        <div class="wish-info">买一本喜欢的书</div>
+                        <div>
+                            <span class="wish-cost">★25</span>
+                            <span class="wish-status status-available">可兑换</span>
+                        </div>
+                        <button class="wish-action">摘星许愿</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 创建愿望模态窗口 -->
+    <div class="modal" id="create-wish-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">许下新愿望</div>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="wish-form">
+                    <div class="form-group">
+                        <label class="form-label">我的心愿</label>
+                        <textarea class="form-textarea" placeholder="描述你的心愿..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">期望星愿数量</label>
+                        <input type="number" class="form-input" placeholder="例如：20" min="1">
+                    </div>
+                    <button type="submit" class="submit-btn">投递愿望瓶</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 生成随机星星
+        function generateStars() {
+            const starsContainer = document.getElementById('stars-container');
+            const starCount = 30;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                // 随机位置
+                const left = Math.random() * 100;
+                const top = Math.random() * 100;
+                
+                // 随机大小
+                const size = Math.random() * 3 + 1;
+                
+                // 随机动画延迟
+                const delay = Math.random() * 5;
+                
+                star.style.left = `${left}%`;
+                star.style.top = `${top}%`;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.animationDelay = `${delay}s`;
+                
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        // 模态窗口控制
+        const wishBottle = document.getElementById('wish-bottle');
+        const pen = document.getElementById('pen');
+        const myProfileBtn = document.getElementById('my-profile-btn');
+        const wishListModal = document.getElementById('wish-list-modal');
+        const createWishModal = document.getElementById('create-wish-modal');
+        const profileContent = document.getElementById('profile-content');
+        const closeBtns = document.querySelectorAll('.close-btn');
+        
+        wishBottle.addEventListener('click', function() {
+            wishListModal.style.display = 'flex';
+        });
+        
+        pen.addEventListener('click', function() {
+            createWishModal.style.display = 'flex';
+        });
+        
+        myProfileBtn.addEventListener('click', function() {
+            profileContent.style.display = 'block';
+            document.querySelector('.desk-scene').style.display = 'none';
+        });
+        
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                wishListModal.style.display = 'none';
+                createWishModal.style.display = 'none';
+            });
+        });
+        
+        // 点击模态窗口外部关闭
+        [wishListModal, createWishModal].forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+        
+        // 表单提交
+        const wishForm = document.getElementById('wish-form');
+        wishForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('愿望已投递！等待家长审核中...');
+            createWishModal.style.display = 'none';
+        });
+        
+        // 初始化
+        generateStars();
+    </script>
+</body>
+</html>
